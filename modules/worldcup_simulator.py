@@ -76,15 +76,19 @@ class WorldCupSimulator:
              # اضافه کردن تیم به گروه مربوط
              self.groups[i].teams.append(team)
          
-    def run_group_stage(self):
+    def run_group_stage(self, show_table=True):
         """مرحله گروهی را اجرا می‌کند و نتایج را نمایش می‌دهد.
         """
         for group in self.groups:
             group.play_all_matches()
-            print(f"=== {group.name} ===")
-            ranking = group.get_ranking()
-            for i, team in enumerate(ranking):
-                print(f"{i+1}. {team.name}: {team.points} points GD {team.goal_difference()} GF {team.goals_for}")
+            
+            # کنترل نمایش جدول گروه‌ها
+            if show_table:
+                
+              print(f"=== {group.name} ===")
+              ranking = group.get_ranking()
+              for i, team in enumerate(ranking):
+                  print(f"{i+1}. {team.name}: {team.points} points GD {team.goal_difference()} GF {team.goals_for}")
                 
     def setup_knockout_bracket(self):
         """مرحله حذفی را می سازد.
@@ -153,7 +157,7 @@ class WorldCupSimulator:
         self.champion = self.final.get_winners()[0] 
      
     def run_full_simulation(self):
-        """مرحله گروهی و حذفی را اجرا می‌کند و نتایج را نمایش می‌دهد.
+        """مرحله گروهی و حذفی را اجرا می‌کند و قهرمان را بر میگرداند.
         """
         # بازنشانی آمار تمام تیم‌ها
         for team in self.teams:
@@ -161,40 +165,63 @@ class WorldCupSimulator:
         # قرعه‌کشی گروه‌ها
         self.seed_and_draw()
         # اجرای مرحله گروهی
-        self.run_group_stage()
+        # show_table=False چون در شبیه‌سازی ۱۰۰۰ باره نیازی به نمایش جدول نیست
+        self.run_group_stage(show_table=False)
          # ساخت جدول مرحله حذفی
         self.setup_knockout_bracket()
-         # ساخت جدول مرحله حذفی
+         # اجرای مرحله حذفی
         self.run_knockout_stage() 
          # قهرمان
-        print(f"Champion: {self.champion.name}")
+        return self.champion.name
         
     def most_likely_champion(self, num_simulations=1000):
-        """مرحله گروهی و حذفی را ۱۰۰۰ بار اجرا می‌کند و نتایج را نمایش می‌دهد.
+        """مرحله گروهی و حذفی را چند بار اجرا می‌کند و نتایج را گزارش می‌دهد.
+
+        Args:
+            num_simulations (int): تعداد دفعات اجرای شبیه‌سازی.
         """
         # ساختن یک دیکشنری برای ذخیره نام تیم ها و تعداد برنده شدن آنها
         champions = {}
         # اجرای شبیه‌سازی
         for _ in range(num_simulations):
-            self.run_full_simulation()
             # افزایش تعداد قهرمانی تیم برنده
-            name = self.champion.name
+            name = self.run_full_simulation()
             champions[name] = champions.get(name, 0) + 1
         # نمایش درصد قهرمانی هر تیم
         print(f"\nResults of {num_simulations} simulations:")
         for name, count in sorted(champions.items(), key=lambda x: x[1], reverse=True):
             print(f"{name}: {count/num_simulations*100:.1f}%")
+
+        # رسم نمودار به صورت جداگانه توسط فراخواننده
         return champions
     
     def plot_champion_stats(self, champions, num_simulations):
+        """رسم نمودار احتمال قهرمانی تیم‌ها بر اساس نتایج شبیه‌سازی.
+        تیم‌ها را بر اساس تعداد قهرمانی مرتب می‌کند، احتمال قهرمانی هر تیم
+        را محاسبه کرده و نمودار میله‌ای افقی ۱۰ تیم برتر را نمایش می‌دهد.
+
+        Args:
+            champions (dict):
+                دیکشنری شامل نام تیم‌ها به عنوان کلید و تعداد قهرمانی آن‌ها
+                در شبیه‌سازی‌ها به عنوان مقدار.
+            num_simulations (int):
+                تعداد کل دفعات اجرای شبیه‌سازی.
+
+        Returns:
+            None:
+                نمودار را در فایل champion_stats.png ذخیره کرده و نمایش می‌دهد.
+        """
+        if plt is None:
+            print("matplotlib is not installed")
+            return
+
         # مرتب کردن از بیشتر به کمتر
         sorted_champions = sorted(champions.items(), key=lambda x: x[1], reverse=True)
-    
-    # فقط ۱۰ تیم اول
+        # فقط ۱۰ تیم اول
         names = [item[0] for item in sorted_champions[:10]]
+        # تبدیل تعداد قهرمانی به درصد احتمال قهرمانی
         percentages = [item[1] / num_simulations * 100 for item in sorted_champions[:10]]
-    
-    # رنگ‌بندی — طلایی اول، نقره‌ای دوم، برنزی سوم، آبی بقیه
+        # رنگ‌بندی — طلایی اول، نقره‌ای دوم، برنزی سوم، آبی بقیه
         colors = []
         for i in range(len(names)):
             if i == 0:
@@ -206,24 +233,37 @@ class WorldCupSimulator:
             else:
                 colors.append('#4a90d9')
 
+        # ساختن یک صفحه نمودار
         fig, ax = plt.subplots(figsize=(10, 7))
+        # names[::-1] لیست تیم‌ها را برعکس می‌کند
+        # percentages[::-1] درصدها را هم برعکس می‌کند
         bars = ax.barh(names[::-1], percentages[::-1], color=colors[::-1], edgecolor='white')
 
-    # نوشتن درصد کنار هر بار
+        # نوشتن درصد کنار هر بار
         for bar, pct in zip(bars, percentages[::-1]):
             ax.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height() / 2,
                     f'{pct:.1f}%', va='center', fontsize=10, fontweight='bold')
 
+        # اسم محور افقی
         ax.set_xlabel('Championship Probability (%)')
+        # عنوان نمودار
         ax.set_title(f'World Cup 2026 — Championship Probability ({num_simulations} Simulations)')
+        # حذف خط بالایی کادر نمودار
         ax.spines['top'].set_visible(False)
+        # حذف خط سمت راست کادر نمودار
         ax.spines['right'].set_visible(False)
+        # اضافه کردن خطوط کمکی عمودی
+        # برای خوانایی بهتر درصدها
         ax.grid(axis='x', alpha=0.3, linestyle='--')
-
+        # تنظیم فاصله‌ها تا نوشته‌ها قطع نشوند
         plt.tight_layout()
+        # ذخیره نمودار به عنوان فایل PNG
         plt.savefig('champion_stats.png', dpi=150, bbox_inches='tight')
-        plt.show()
-
+        # نمایش نمودار روی صفحه بدون توقف برنامه (block=False)
+        plt.show(block=False)
+        # توقف ۰.۱ ثانیه ای برای لود شدن نمودار
+        plt.pause(0.1)
+     
     def display_bracket(self):
         """برگرداندن نتایج مرحله حذفی.
         """
