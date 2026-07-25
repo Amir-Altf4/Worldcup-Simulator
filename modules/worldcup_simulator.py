@@ -1,10 +1,15 @@
 import csv
-from team import Team
-from knockout_stage import KnockoutStage
 import random
-from group import Group
-from match import Match
 
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    plt = None
+
+from modules.group import Group
+from modules.knockout_stage import KnockoutStage
+from modules.match import Match
+from modules.team import Team
 
 
 class WorldCupSimulator:
@@ -179,7 +184,46 @@ class WorldCupSimulator:
         print(f"\nResults of {num_simulations} simulations:")
         for name, count in sorted(champions.items(), key=lambda x: x[1], reverse=True):
             print(f"{name}: {count/num_simulations*100:.1f}%")
-        
+        return champions
+    
+    def plot_champion_stats(self, champions, num_simulations):
+        # مرتب کردن از بیشتر به کمتر
+        sorted_champions = sorted(champions.items(), key=lambda x: x[1], reverse=True)
+    
+    # فقط ۱۰ تیم اول
+        names = [item[0] for item in sorted_champions[:10]]
+        percentages = [item[1] / num_simulations * 100 for item in sorted_champions[:10]]
+    
+    # رنگ‌بندی — طلایی اول، نقره‌ای دوم، برنزی سوم، آبی بقیه
+        colors = []
+        for i in range(len(names)):
+            if i == 0:
+                colors.append('#FFD700')
+            elif i == 1:
+                colors.append('#C0C0C0')
+            elif i == 2:
+                colors.append('#CD7F32')
+            else:
+                colors.append('#4a90d9')
+
+        fig, ax = plt.subplots(figsize=(10, 7))
+        bars = ax.barh(names[::-1], percentages[::-1], color=colors[::-1], edgecolor='white')
+
+    # نوشتن درصد کنار هر بار
+        for bar, pct in zip(bars, percentages[::-1]):
+            ax.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height() / 2,
+                    f'{pct:.1f}%', va='center', fontsize=10, fontweight='bold')
+
+        ax.set_xlabel('Championship Probability (%)')
+        ax.set_title(f'World Cup 2026 — Championship Probability ({num_simulations} Simulations)')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.grid(axis='x', alpha=0.3, linestyle='--')
+
+        plt.tight_layout()
+        plt.savefig('champion_stats.png', dpi=150, bbox_inches='tight')
+        plt.show()
+
     def display_bracket(self):
         """برگرداندن نتایج مرحله حذفی.
         """

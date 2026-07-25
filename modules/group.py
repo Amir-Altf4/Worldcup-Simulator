@@ -1,5 +1,5 @@
 import random
-from match import Match
+from modules.match import Match
 
 class Group:
     """نماینده یک گروه در مرحله گروهی جام جهانی.

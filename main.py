@@ -5,7 +5,7 @@
 # تاریخ تحویل: 
 # =======================
 
-from worldcup_simulator import WorldCupSimulator
+from modules.worldcup_simulator import WorldCupSimulator
 
 # اجرای برنامه فقط در صورتی که این فایل مستقیماً اجرا شود
 if __name__ == "__main__":
@@ -61,7 +61,8 @@ if __name__ == "__main__":
                 if num_simulation <= 0:
                     print("Number should be greater than 0")
                 else:
-                    simulator.most_likely_champion(int(num_simulation))
+                    champions = simulator.most_likely_champion(int(num_simulation))
+                    simulator.plot_champion_stats(champions, num_simulation)
                     
         # نمایش براکت مرحله حذفی آخرین شبیه‌سازی
         elif choice == "6":
