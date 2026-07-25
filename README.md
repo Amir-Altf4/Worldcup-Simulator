@@ -1,63 +1,146 @@
-# World Cup 2026 Simulator
-A Python simulation of the 2026 FIFA World Cup. Runs the full tournament from group stage to final, and can simulate it thousands of times to calculate each team's championship probability.
+# 🌍 World Cup 2026 Simulator
 
-## Features
+A Python-based simulator for the **2026 FIFA World Cup**. The program simulates the entire tournament—from the group stage to the final—and can run thousands of simulations to estimate each team's probability of becoming world champion.
 
-- Loads 32 teams from a CSV file
-- Seeds and draws groups based on FIFA rankings
-- Simulates group stage matches using Poisson distribution
-- Runs knockout rounds with extra time and penalty shootouts
-- Simulates the tournament a specified number of times and reports championship percentages
-- Displays the full knockout bracket
-- Visualizes championship probabilities as a bar chart (top 10 teams)
+---
 
-## Requirements
+## ✨ Features
 
-- Python
-- numpy
-- matplotlib (optional — chart will be skipped if not installed)
+- Load all 32 teams from a data file
+- Seed teams and randomly draw World Cup groups based on FIFA rankings
+- Simulate group stage matches using the **Poisson distribution**
+- Simulate knockout rounds, including:
+  - Extra Time
+  - Penalty Shootouts
+- Run the tournament any number of times to calculate championship probabilities
+- Display the complete knockout bracket
+- Generate and save a horizontal bar chart of the **Top 10 championship probabilities**
 
-Install dependencies:
+---
 
+## 📦 Requirements
+
+- Python 3.8+
+- NumPy
+- Matplotlib *(optional — the simulator works without it, but charts will be skipped)*
+
+Install the required packages:
+
+```bash
 pip install numpy matplotlib
+```
 
-## Project Structure
+---
 
+## 📁 Project Structure
+
+```text
 worldcup_project/
-├── main.py                    # Entry point and menu
+│
+├── main.py
+│
 ├── modules/
-│   ├── team.py                # Team class
-│   ├── match.py               # Match class
-│   ├── group.py               # Group class
-│   ├── knockout_stage.py      # KnockoutStage class
-│   └── world_cup_simulator.py # WorldCupSimulator class
-└── worldcup_2026_teams.txt    # Team data
+│   ├── team.py
+│   ├── match.py
+│   ├── group.py
+│   ├── knockout_stage.py
+│   └── world_cup_simulator.py
+│
+└── worldcup_2026_teams.txt
+```
 
-## How to Run
+### File Overview
 
+| File | Description |
+|------|-------------|
+| `main.py` | Program entry point and interactive menu |
+| `team.py` | Team class |
+| `match.py` | Match simulation logic |
+| `group.py` | Group stage logic |
+| `knockout_stage.py` | Knockout bracket management |
+| `world_cup_simulator.py` | Main simulator controller |
+| `worldcup_2026_teams.txt` | Team data |
+
+---
+
+## 🚀 Running the Project
+
+```bash
 python main.py
+```
 
-## Menu Options
+---
 
-1. Load teams from CSV
+## 📋 Menu
+
+```
+1. Load teams from file
 2. Seed and draw groups
 3. Run group stage and display standings
 4. Run full tournament and display champion
-5. Simulate N times and report championship percentages
-6. Display knockout bracket from last simulation
+5. Simulate N tournaments and report championship probabilities
+6. Display knockout bracket from the last simulation
 7. Exit
+```
 
-## How It Works
+---
 
-Group Stage: Each team plays against every other team in their group once. Teams are ranked by points, goal difference, and goals scored.
+## ⚙️ Simulation Model
 
-Knockout Stage: Matches follow FIFA bracket rules. Draws go to extra time, then penalties if needed.
+### Group Stage
 
-Simulation: Match scores are generated using a Poisson distribution. The expected number of goals is calculated from each team's attack rating and the opponent's defense rating.
+Each team plays every other team in its group once.
 
-Chart: After running multiple simulations, a horizontal bar chart is generated showing the top 10 teams by championship probability. The chart is also saved as champion_stats.png.
+Teams are ranked by:
 
-## Author
+1. Points
+2. Goal Difference
+3. Goals Scored
 
-Amir Bagheri
+---
+
+### Knockout Stage
+
+Every knockout match follows FIFA rules:
+
+- 90 minutes
+- Extra Time (if tied)
+- Penalty Shootout (if still tied)
+
+---
+
+### Match Simulation
+
+Match scores are generated using a **Poisson distribution**.
+
+Expected goals are calculated from:
+
+- Team attacking strength
+- Opponent defensive strength
+
+This creates realistic score distributions while preserving stronger teams' higher chances of winning.
+
+---
+
+### Championship Simulation
+
+The simulator can run the tournament thousands of times.
+
+After all simulations, it reports each team's probability of winning the World Cup.
+
+If **Matplotlib** is installed, it also:
+
+- Displays a horizontal bar chart of the **Top 10 teams**
+- Saves the chart as:
+
+```text
+champion_stats.png
+```
+
+---
+
+## 👨‍💻 Author
+
+**Amir Bagheri**
+
 Computer Engineering Student
