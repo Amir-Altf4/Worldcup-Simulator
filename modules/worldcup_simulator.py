@@ -124,6 +124,7 @@ class WorldCupSimulator:
     def run_knockout_stage(self):
         """تمام مراحل حذفی را اجرا کرده و قهرمان مسابقات را تعیین می‌کند.
         """
+    
         self.round_of_16.play_round()
         # دریافت تیم‌های صعودکننده به یک‌چهارم نهایی
         winners_r16 = self.round_of_16.get_winners()
@@ -159,6 +160,7 @@ class WorldCupSimulator:
     def run_full_simulation(self):
         """کل مسابقات را شبیه‌سازی کرده و نام تیم قهرمان را برمی‌گرداند.
         """
+        
         # بازنشانی آمار تمام تیم‌ها
         for team in self.teams:
             team.reset_stats()
