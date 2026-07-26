@@ -91,7 +91,7 @@ class WorldCupSimulator:
                   print(f"{i+1}. {team.name}: {team.points} points GD {team.goal_difference()} GF {team.goals_for}")
                 
     def setup_knockout_bracket(self):
-        """مرحله حذفی را می سازد.
+        """جدول مرحله حذفی را بر اساس نتایج مرحله گروهی ایجاد می‌کند.
         """
         results = {}
         # تعیین تیم اول و دوم هر گروه
@@ -122,8 +122,8 @@ class WorldCupSimulator:
         self.round_of_16 = KnockoutStage(match_r16, "round of 16")
     
     def run_knockout_stage(self):
-        """مرحله حذفی را اجرا می‌کند."""
-    
+        """تمام مراحل حذفی را اجرا کرده و قهرمان مسابقات را تعیین می‌کند.
+        """
         self.round_of_16.play_round()
         # دریافت تیم‌های صعودکننده به یک‌چهارم نهایی
         winners_r16 = self.round_of_16.get_winners()
@@ -157,7 +157,7 @@ class WorldCupSimulator:
         self.champion = self.final.get_winners()[0] 
      
     def run_full_simulation(self):
-        """مرحله گروهی و حذفی را اجرا می‌کند و قهرمان را بر میگرداند.
+        """کل مسابقات را شبیه‌سازی کرده و نام تیم قهرمان را برمی‌گرداند.
         """
         # بازنشانی آمار تمام تیم‌ها
         for team in self.teams:
