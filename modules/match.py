@@ -1,59 +1,55 @@
 class Match:
-      """نماینده یک مسابقه بین دو تیم.
+    """Represents a match between two teams.
 
-     این کلاس دو تیم را به هم متصل می‌کند، مسابقه را اجرا می‌کند
-      و نتیجه را در آمار تیم‌ها ثبت می‌کند.
-      """
+    This class links two teams, runs the match simulation,
+    and records the result in the teams' statistics.
+    """
 
-      def __init__(self, team1, team2, is_knockout = False):
-        """یک مسابقه جدید بین دو تیم ایجاد می‌کند.
+    def __init__(self, team1, team2, is_knockout = False):
+        """Create a new match between two teams.
 
         Args:
-            team1 (Team): تیم اول.
-            team2 (Team): تیم دوم.
-            is_knockout (bool): اگر True باشد، مسابقه با قوانین
-                مرحله حذفی برگزار می‌شود.
+            team1 (Team): First team.
+            team2 (Team): Second team.
+            is_knockout (bool): If True, the match is played under
+                knockout rules.
         """
         self.team1 = team1
         self.team2 = team2
-        
-        # مشخص کردن نوع مسابقه (گروهی یا حذفی)
+
+        # Mark whether the match is group-stage or knockout
         self.is_knockout = is_knockout
         self.goals1 = 0
         self.goals2 = 0
         self.winner = None
-    
-      def play(self):
-        """مسابقه را برگزار می‌کند و آمار تیم‌ها را به‌روزرسانی می‌کند.
 
-        نتیجه مسابقه را شبیه‌سازی کرده، گل‌ها و امتیازات (در مرحله
-        گروهی) را به آمار هر دو تیم اضافه می‌کند.
+    def play(self):
+        """Play the match and update both teams' statistics.
+
+        Simulates the match result, adds goals and points (in group stage)
+        to each team's stats.
 
         Returns:
             None
         """
-        # شبیه‌سازی مسابقه و دریافت نتیجه
+        # Simulate the match and get the result
         self.goals1, self.goals2, self.winner = self.team1.simulate_match(self.team2, self.is_knockout)
-         
-         # آمار گل‌ها برای هر دو تیم آپدیت می‌شود
+
+        # Update goals statistics for both teams
         self.team1.goals_for += self.goals1
         self.team2.goals_for += self.goals2
         self.team1.goals_against += self.goals2
         self.team2.goals_against += self.goals1
 
-         # امتیاز فقط در مرحله گروهی داده می‌شود — حذفی امتیاز ندارد
+        # Points are only awarded in the group stage — knockout has no points
         if not self.is_knockout:
-            
-            # برد تیم اول
+            # First team win
             if self.goals1 > self.goals2:
                 self.team1.points += 3
-                
-            # برد تیم دوم
+            # Second team win
             elif self.goals2 > self.goals1:
                 self.team2.points += 3
-                
-            # تساوی؛ هر تیم یک امتیاز دریافت می‌کند    
-            else: 
-                
+            # Draw; each team receives one point
+            else:
                 self.team1.points += 1
-                self.team2.points += 1    
+                self.team2.points += 1

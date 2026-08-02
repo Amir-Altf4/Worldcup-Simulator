@@ -1,19 +1,12 @@
-# =======================
-# دانشجو: امیرمحمد باقری
-# 404130433 : شماره دانشجویی
-# عنوان پروژه: شبیه ساز جام جهانی
-# تاریخ تحویل: 1405/5/3
-# =======================
-
 from modules.worldcup_simulator import WorldCupSimulator
 
-# اجرای برنامه فقط در صورتی که این فایل مستقیماً اجرا شود
+# Run the program only if this file is executed directly
 if __name__ == "__main__":
     
-    # ساخت شیء اصلی شبیه‌ساز
+    # Create the main simulator object
     simulator = WorldCupSimulator()
     
-    # نمایش منو تا زمانی که کاربر گزینه خروج را انتخاب کند
+    # Show the menu until the user chooses to exit
     while True:
         print("=== WorldCup Simulator ===")
         print("1. Loading teams from CSV")
@@ -26,33 +19,33 @@ if __name__ == "__main__":
     
         choice = input("Choose: ")
         
-        # بارگذاری اطلاعات تیم‌ها از فایل
+        # Load teams data from file
         if choice == "1":
             simulator.load_teams_from_csv("worldcup_2026_teams.txt")
             print(f"✅ {len(simulator.teams)} Team loaded")
     
-        # انجام سیدبندی و قرعه‌کشی گروه‌ها
+        # Perform seeding and drawing of groups
         elif choice == "2":
             if not simulator.teams:
                 print("Load teams first")
             else:
                 simulator.seed_and_draw()
                 
-        # اجرای مرحله گروهی و نمایش جدول گروه‌ها
+        # Run the group stage and display each group's table
         elif choice == "3":
             if not simulator.groups:
                 print("Do seed & draw first")
             else:
                 simulator.run_group_stage()
                 
-        # اجرای کامل مسابقات و نمایش قهرمان
+        # Run the full tournament and display the champion
         elif choice == "4":
             if not simulator.teams:
                 print("Load teams first") 
             else:
                 simulator.run_full_simulation()
                 
-        # اجرای چندباره شبیه‌سازی و محاسبه درصد قهرمانی تیم‌ها
+        # Run multiple simulations and calculate championship percentages
         elif choice == "5":
             if not simulator.teams:
                 print("Load teams first")
@@ -64,7 +57,7 @@ if __name__ == "__main__":
                     champions = simulator.most_likely_champion(int(num_simulation))
                     simulator.plot_champion_stats(champions, num_simulation)
                     
-        # نمایش براکت مرحله حذفی آخرین شبیه‌سازی
+        # Display the knockout bracket from the last simulation
         elif choice == "6":
             if not simulator.champion:
                 print("Do a simulation first")
@@ -75,6 +68,6 @@ if __name__ == "__main__":
             print("exit")
             break
         
-        # مدیریت ورودی‌های نامعتبر
+        # Handle invalid inputs
         else:
             print("invalid choice! please try again.")

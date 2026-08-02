@@ -3,66 +3,65 @@ import random
 
 
 class Team:
-    """نماینده یک تیم فوتبال در شبیه‌ساز جام جهانی.
+    """Represents a football team in the World Cup simulator.
 
-    این کلاس مشخصات تیم (نام، حمله، دفاع، رتبه) و آمار مسابقات
-    (گل زده، گل خورده، امتیاز و گروه) را نگه می‌دارد و منطق
-    شبیه‌سازی یک مسابقه را پیاده‌سازی می‌کند.
+    This class stores the team's attributes (name, attack, defense, rank)
+    and match statistics (goals for, goals against, points, group), and
+    implements the logic to simulate a match.
     """
 
     def __init__(self, name, attack, defense, rank):
-        """یک تیم جدید با مشخصات پایه ایجاد می‌کند.
+        """Create a new team with basic attributes.
 
         Args:
-            name (str): نام تیم.
-            attack (int): قدرت حمله تیم (۰ تا ۱۰۰).
-            defense (int): قدرت دفاع تیم (۰ تا ۱۰۰).
-            rank (int): رتبه جهانی تیم برای سیدبندی.
+            name (str): Team name.
+            attack (int): Attack strength (0-100).
+            defense (int): Defense strength (0-100).
+            rank (int): World ranking used for seeding.
         """
         self.name = name
         self.attack = attack
         self.defense = defense
         self.rank = rank
-        # امار اولیه صفر است
+        # Initial statistics are zero
         self.goals_for = 0
         self.goals_against = 0
         self.points = 0
         self.group = None
         
     def goal_difference(self):
-        """تفاضل گل تیم را محاسبه می‌کند.
+        """Calculate the team's goal difference.
 
         Returns:
-            int: تفاضل گل.
+            int: Goal difference.
         """
         return self.goals_for - self.goals_against   
      
     def reset_stats(self):
-        """آمار مسابقات تیم را برای شروع مجدد شبیه‌سازی صفر می‌کند."""
+        """Reset the team's match statistics for a fresh simulation run."""
         self.goals_for = 0
         self.goals_against = 0
         self.points = 0
     
     def simulate_match(self, opponent, is_knockout = False):
-        """یک مسابقه را در برابر تیم حریف شبیه‌سازی می‌کند.
+        """Simulate a match against an opponent.
 
-        در مرحله گروهی فقط ۹۰ دقیقه بازی می‌شود. در مرحله حذفی
-        در صورت تساوی، وقت اضافه و در صورت نیاز ضربات پنالتی
-        نیز شبیه‌سازی می‌شود.
+        In the group stage only 90 minutes are played. In knockout rounds,
+        if tied, extra time and, if needed, penalties are simulated.
 
         Args:
-            opponent (Team): تیم حریف.
-            is_knockout (bool): اگر True باشد، قوانین مرحله حذفی
-                (وقت اضافه و پنالتی) اعمال می‌شود.
+            opponent (Team): Opposing team.
+            is_knockout (bool): If True, knockout rules (extra time and
+                penalties) apply.
 
         Returns:
-            tuple: سه‌تایی شامل (گل تیم، گل حریف، برنده).
-                در مرحله گروهی در صورت تساوی، برنده None است.
+            tuple: (team_goals, opponent_goals, winner). In the group stage
+                a draw returns winner as None.
         """
         
-        # شبیه‌سازی نتیجه ۹۰ دقیقه مسابقه
+        # Simulate the 90-minute match result
         goals_self, goals_opp = self._play_90_minutes(opponent)
-        # در مرحله گروهی مساوی مجاز است
+        # Draws are allowed in the group stage
         if not is_knockout: 
             winner = None
             if goals_self > goals_opp:
@@ -71,15 +70,15 @@ class Team:
              winner = opponent
             return goals_self, goals_opp, winner
 
-        # در مرحله حذفی اگر مساوی شد وقت اضافه داریم
+        # In knockout stage, if tied, play extra time
         if goals_self == goals_opp:
          et_self, et_opp = self._play_extra_time(opponent)
          goals_self += et_self
          goals_opp += et_opp
-        # اگر باز مساوی شد پنالتی
+        # If still tied, go to penalties
         if goals_self == goals_opp:
             pen_self, pen_opp, winner = self._play_penalties(opponent)
-        #گل های پنالتی به تعداد گل اضافه نمی شود
+        # Penalty goals are not added to the match goal totals
             return goals_self, goals_opp, winner
 
         winner = self if goals_self > goals_opp else opponent
@@ -87,32 +86,32 @@ class Team:
     
     def _play_90_minutes(self, opponent):
         """
-        ۹۰ دقیقه بازی را با توزیع پواسون شبیه‌سازی می‌کند.
+        Simulate 90 minutes using a Poisson distribution.
  
         Returns:
-            tuple: (گل تیم، گل حریف)
+            tuple: (team_goals, opponent_goals)
         """
-        #میانگین گل مورد انتظار
-        # هرچه حمله قوی تر و دفاع حریف ضعیف تر شانس گل بالاتر
+        # Expected mean goals.
+        # Higher attack and weaker opponent defense increase scoring chance.
         lambda_self = (self.attack / 100) * 1.5 + (1 - opponent.defense / 100) * 0.8
         lambda_opponent = (opponent.attack / 100) * 1.5 + (1 - self.defense / 100) * 0.8
         
-        # تولید تعداد گل‌ها با استفاده از توزیع پواسون
+        # Generate goal counts using a Poisson distribution
         goals_self = np.random.poisson(lambda_self)
         goals_opp = np.random.poisson(lambda_opponent)
         return goals_self, goals_opp
     
     def _play_extra_time(self, opponent):
         """
-        ۳۰ دقیقه وقت اضافه را شبیه‌سازی می‌کند.
+        Simulate 30 minutes of extra time.
  
         Returns:
-            tuple: (گل تیم، گل حریف) در وقت اضافه
+            tuple: (team_goals, opponent_goals) in extra time
         """
-        # چون ۳۰ دقیقه است ضربدر ۰.۳۳ می شود
+        # Because it's 30 minutes, scale the mean by ~0.33
         lambda_self = ((self.attack / 100) * 1.5 + (1 - opponent.defense / 100) * 0.8) * 0.33
         lambda_opponent = ((opponent.attack / 100) * 1.5 + (1 - self.defense / 100) * 0.8) * 0.33
-        # توزیع پواسون بر اساس لاندای تولید شده یک عدد تصادفی می دهد
+        # Poisson distribution samples random counts based on the lambda
         goals_self = np.random.poisson(lambda_self)
         goals_opp = np.random.poisson (lambda_opponent)
         
@@ -120,37 +119,35 @@ class Team:
     
     def _play_penalties(self, opponent):
         """
-        ضربات پنالتی را شبیه‌سازی می‌کند.
-        ابتدا ۵ ضربه برای هر تیم، سپس پنالتی ناگهانی.
+        Simulate a penalty shootout: first 5 kicks each, then sudden death.
  
         Returns:
-            tuple: (گل تیم، گل حریف، برنده)
+            tuple: (team_score, opponent_score, winner)
         """
 
 
         def take_penalty(attacker, defender):
-            """ یک ضربه پنالتی را شبیه سازی می کند """
-            
-            # محاسبه احتمال گل بر اساس قدرت حمله و دفاع
+            """Simulate a single penalty kick."""
+            # Compute scoring probability based on attack and defense
             P = 0.75 + (attacker.attack - defender.defense) / 250
-            # محدود کردن احتمال گل بین ۶۰ تا ۹۰ درصد
+            # Clamp probability between 60% and 90%
             P = max(0.6, min(0.9, P))
-            # تعیین گل شدن یا نشدن ضربه
+            # Determine if the kick is scored
             return random.random() < P
         
-        # شمارش گل‌های تیم اول در پنج ضربه ابتدایی
+        # Count first team's goals in the initial five penalties
         score_self = 0
         for _ in range(5):
             if take_penalty(self, opponent):
                 score_self += 1
                 
-        # شمارش گل‌های تیم دوم در پنج ضربه ابتدایی
+        # Count second team's goals in the initial five penalties
         score_opponent = 0
         for _ in range(5):
             if take_penalty(opponent, self):
                 score_opponent += 1
                 
-        # اجرای پنالتی ناگهانی تا زمانی که برنده مشخص شود
+        # Execute sudden-death penalties until a winner is decided
         while score_self == score_opponent:
             if take_penalty(self, opponent):
                 score_self += 1
@@ -159,7 +156,7 @@ class Team:
             if score_self != score_opponent:
                 break
             
-        # تعیین برنده ضربات پنالتی
+        # Determine the penalty shootout winner
         winner = self if score_self > score_opponent else opponent
 
         return score_self, score_opponent, winner

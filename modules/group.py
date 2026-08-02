@@ -2,67 +2,67 @@ import random
 from modules.match import Match
 
 class Group:
-    """نماینده یک گروه در مرحله گروهی جام جهانی.
+    """Represents a group in the World Cup group stage.
 
-    این کلاس تیم‌های یک گروه را مدیریت می‌کند، مسابقات دوره‌ای
-    گروه را برگزار می‌کند و رتبه‌بندی را محاسبه می‌کند.
+    This class manages the teams in a group, runs the round-robin
+    matches for the group, and computes the ranking.
     """
 
     def __init__(self, name, teams):
-        """یک گروه جدید با نام و لیست تیم‌ها ایجاد می‌کند.
+        """Create a new group with a name and list of teams.
 
         Args:
-            name (str): نام گروه (مثلاً «A»).
-            teams (list[Team]): لیست تیم‌های عضو این گروه.
+            name (str): Group name (e.g., "A").
+            teams (list[Team]): List of teams in this group.
         """
         self.name = name
         self.teams = teams
         
     def play_all_matches(self):
-        """تمام مسابقات دوره‌ای بین تیم‌های گروه را برگزار می‌کند.
+        """Play all round-robin matches between teams in the group.
 
-        هر تیم یک بار در برابر هر تیم دیگر گروه بازی می‌کند.
+        Each team plays once against every other team in the group.
 
         Returns:
             None
         """
         
-        # پیمایش تمام تیم‌های گروه
+        # Iterate over all teams in the group
         for i in range(len(self.teams)):
-            # j از i+1 شروع می‌شود تا از تکرار بازی‌ها جلوگیری شود
+            # j starts from i+1 to avoid duplicate matches
             for j in range(i + 1, len(self.teams)):
                 
-                # ایجاد مسابقه بین دو تیم
+                # Create a match between the two teams
                 match = Match(self.teams[i], self.teams[j])
                 match.play()
     
     def get_ranking(self):
-        """تیم‌های گروه را بر اساس امتیاز و معیارهای tie-break مرتب می‌کند.
+        """Sort the group's teams by points and tie-break criteria.
 
-        معیارهای رتبه‌بندی به ترتیب: امتیاز، تفاضل گل، گل زده
-        و در صورت تساوی کامل، انتخاب تصادفی.
+        Tie-break criteria in order: points, goal difference, goals scored,
+        and random choice as a final tie-break.
 
         Returns:
-            list[Team]: لیست تیم‌ها به ترتیب نزولی رتبه.
+            list[Team]: Teams sorted in descending order.
         """
         
-        # مرتب‌سازی تیم‌ها بر اساس معیارهای رتبه‌بندی
+        # Sort teams according to ranking criteria
         self.teams.sort(
         key = lambda t: (t.points, t.goal_difference(), t.goals_for, random.random()),
         reverse = True    
         )
-        # بازگرداندن جدول نهایی گروه
+        # Return the final group table
         return self.teams
     
     def advance_teams(self):
-        """دو تیم برتر گروه را برای مرحله حذفی برمی‌گرداند.
+        """Return the top two teams from the group for the knockout stage.
 
         Returns:
-            list[Team]: دو تیم اول جدول رتبه‌بندی گروه.
+            list[Team]: The top two teams in the group's ranking.
         """
         
-        # دریافت جدول رتبه‌بندی
+        # Get the ranking table
         ranking = self.get_ranking()
         
-        # بازگرداندن دو تیم برتر
+        # Return the top two teams
         return ranking[:2]
